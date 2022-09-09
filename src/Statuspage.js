@@ -1,3 +1,6 @@
+const LoggerUtils = require('./utils/LoggerUtils');
+LoggerUtils.info("Starting Statuspage...");
+
 const express = require('express');
 const app = express();
 
@@ -12,6 +15,25 @@ app.get('/', function(req, res) {
 });
 
 const server = app.listen(8080, function() {
-    console.log("Ready !\n=> Server running on port " + server.address().port);
-    config.get("config").push({port: 8080, name: "Statuspage", icon: "https://avatars.githubusercontent.com/u/41598226"}).write();
+    initConfig();
+    LoggerUtils.info("Server running on port " + server.address().port + " !");
 });
+
+function initConfig(){
+    if(!checkConfig()){
+        LoggerUtils.info("Invalid configuration, initialization...");
+        config.set("config", {port: 8080, name: "Statuspage", icon: "https://avatars.githubusercontent.com/u/41598226"}).write();
+        LoggerUtils.info("Configuration initialized !");
+    }
+}
+
+function checkConfig() {
+    let configOK = true;
+    let configParameters = ["port", "name", "icon"];
+    configParameters.forEach((value, index, array) => {
+        if (!config.has("config." + value).value()) {
+            configOK = false;
+        }
+    })
+    return configOK;
+}
